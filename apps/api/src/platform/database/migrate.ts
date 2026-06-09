@@ -1,9 +1,13 @@
+import { fileURLToPath } from 'node:url';
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import type { Database } from './database.js';
 
 export async function runMigrations(database: Database) {
-  const migrationDirectory = path.join(process.cwd(), 'apps', 'api', 'migrations');
+  const migrationDirectory = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../../migrations'
+  );
   const migrationFiles = readdirSync(migrationDirectory)
     .filter((fileName) => fileName.endsWith('.sql'))
     .sort();
