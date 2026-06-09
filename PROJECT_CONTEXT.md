@@ -1,0 +1,459 @@
+# Meridian Project Context
+
+## Current State
+
+- Repository root initialized at `D:\Work\Meridian`
+- Git repository initialized
+- Approved top-level directory structure created and tracked:
+  - `apps/web`
+  - `apps/api`
+  - `apps/worker`
+  - `packages/contracts`
+  - `tests/integration`
+  - `tests/contract`
+  - `tests/e2e`
+  - `tests/golden`
+  - `tests/security`
+  - `infra`
+  - `scripts`
+- State files initialized:
+  - `AGENTS.md`
+  - `PROJECT_CONTEXT.md`
+  - `DECISIONS.md`
+  - `TODO.md`
+  - `API_CONTRACT.md`
+- Phase 0.1 workspace bootstrap initialized:
+  - root `package.json` with `npm` workspaces
+  - workspace package manifests for `apps/web`, `apps/api`, `apps/worker`, and `packages/contracts`
+  - shared `tsconfig.base.json`
+  - root lint and formatting baseline
+  - root `.gitignore` and `.editorconfig`
+  - root `.env.example`
+- Phase 0.2 runtime skeleton initialized:
+  - `apps/web` Next.js presentation shell
+  - `apps/api` Node.js runtime shell
+  - `apps/worker` worker runtime shell
+  - `packages/contracts` transport contract package scaffold
+  - baseline request context, error envelope, and structured logging conventions
+  - operational `health` and `ready` routes in the API shell
+  - workspace dependencies installed and lockfile created
+- Phase 0.3 delivery baseline initialized:
+  - root lint, typecheck, and verification scripts
+  - integration and contract test runners
+  - bootstrap operational tests for `health` and `ready`
+  - CI workflow baseline under `.github/workflows/ci.yml`
+  - delivery and testing documentation under `infra` and `tests`
+- Phase 1.1 auth core implemented:
+  - auth request and response contracts added to `API_CONTRACT.md`
+  - PostgreSQL-backed auth persistence for `users`, `sessions`, and `auth_challenge_tokens`
+  - signup, email verification, login, logout, current-session, and password reset routes implemented in the Node API
+  - auth transport contracts added to `packages/contracts`
+  - auth unit, integration, and contract coverage added
+- Phase 1.2 organization onboarding implemented:
+  - organization and membership persistence added
+  - session-bound active organization selection added
+  - organization creation, list, current, and selection routes implemented in the Node API
+  - onboarding presentation flow added in `apps/web`
+  - onboarding unit, integration, contract, and end-to-end coverage added
+  - credentialed browser-to-API CORS baseline added for the Next.js frontend origin
+- Phase 2.1 memberships and RBAC implemented:
+  - fixed membership role policy added
+  - membership list, detail, role update, and deactivation routes implemented in the Node API
+  - organization-admin role enforcement added for team management
+  - team management presentation flow added in `apps/web`
+  - membership unit, integration, contract, security, and end-to-end coverage added
+- Phase 2.2 work-account provisioning and team administration implemented:
+  - direct employee account provisioning endpoint added in the Node API
+  - manager assignment and manager removal endpoints added in the Node API
+  - first-login password-setup token returned from direct provisioning flow
+  - membership responses extended with nullable manager summary data
+  - unauthorized-access regression coverage added for provisioning and team assignment operations
+- Phase 3.1 publisher records implemented:
+  - publisher persistence and migration added
+  - publisher create, list, detail, update, archive, and restore routes implemented in the Node API
+  - publisher transport contracts added to `packages/contracts`
+  - publisher list and form presentation flow added in `apps/web`
+  - publisher unit, integration, contract, security, tenant-isolation, and end-to-end coverage added
+- Phase 3.2 advertiser records implemented:
+  - advertiser persistence and migration added
+  - advertiser create, list, detail, update, archive, and restore routes implemented in the Node API
+  - advertiser transport contracts added to `packages/contracts`
+  - advertiser list and form presentation flow added in `apps/web`
+  - advertiser unit, integration, contract, security, tenant-isolation, and end-to-end coverage added
+- Phase 4.1 offer core implemented:
+  - offer persistence and migration added
+  - offer create, list, detail, update, activate, pause, resume, archive, and restore routes implemented in the Node API
+  - mandatory advertiser ownership and advertiser-scoped duplicate blocking enforced
+  - explicit offer event definitions implemented with `event_code`, `event_name`, and `advertiser_payout`
+  - offer transport contracts added to `packages/contracts`
+  - offer list, detail, create, edit, and lifecycle presentation flow added in `apps/web`
+  - offer unit, integration, contract, security, tenant-isolation, and end-to-end coverage added
+- Phase 4.2 offer assignments and publisher controls implemented:
+  - publisher tier fields and publisher postback controls added to publisher persistence and routes
+  - organization-owned publisher tier percentage settings implemented and seeded at organization creation
+  - offer assignment persistence and migration added
+  - offer assignment create, list, detail, update, pause, resume, archive, restore, and tracking-link routes implemented in the Node API
+  - one non-archived `Offer + Publisher` assignment-pair rule enforced with restore-conflict validation
+  - assignment-level conversion visibility, postback percent, and event-scoped fixed payout overrides implemented
+  - publisher postback percent plus assignment postback percent now resolve effective postback via `MIN(...)`
+  - offer assignment transport contracts added to `packages/contracts`
+  - publisher controls and offer assignment presentation flows added in `apps/web`
+  - offer assignment and publisher-control unit, integration, contract, security, tenant-isolation, and end-to-end coverage added
+  - withdrawn MVP viewer-specific offer visibility removed from offer persistence, contracts, routes, web UI, and tests
+- Phase 5.1 tracking infrastructure implemented:
+  - assignment-owned redirect URLs added to offer assignments
+  - public `/t/{tracking_token}` click-ingest and redirect route implemented
+  - tracking resolution now derives organization, offer, publisher, advertiser, and assignment context only from the resolved token
+  - click persistence and migration added with immutable `clk_*` public IDs
+  - internal click list and detail routes implemented in the Node API
+  - click unit, integration, contract, security, tenant-isolation, and end-to-end coverage added
+- Phase 5.2 privacy-boundary hardening implemented:
+  - raw IP removed from durable click storage and replaced with hashed IP only
+  - raw query persistence removed from durable click storage
+  - approved attribution persistence narrowed to `sub1`-`sub5` and `utm_*` only
+  - click detail contracts updated to expose hashed IP plus whitelisted attribution only
+  - tracking unit, integration, contract, security, tenant-isolation, and end-to-end coverage updated for the privacy boundary
+- Phase 6.1 conversion intake implemented:
+  - public `POST /conversions/ingest`, `GET /gpixel`, and `GET /goal` routes added
+  - all three public entry surfaces normalize into one shared conversion-ingestion service
+  - advertiser-scoped dedupe implemented across all public conversion surfaces
+  - exact click lookup chain implemented with `click_id` priority and `sub1`-`sub5` fallback
+  - valid unmatched or conflicting conversions now persist as `rejected`
+  - duplicate-event requests return the existing conversion without creating a second row
+  - internal conversion list and detail routes implemented with RBAC and tenant isolation
+  - conversion unit, integration, contract, security, tenant-isolation, and end-to-end coverage added
+- Phase 6.2 attribution and reprocessing implemented:
+  - valid conversion ingest now finalizes synchronously in the request path
+  - finalized conversions now snapshot immutable financial, visibility, postback, identity, and source-diagnostic fields
+  - publisher payout resolution now snapshots `assignment_override` or `publisher_tier` as the effective publisher payout source
+  - internal `POST /conversions/{conversion_id}/reprocess` route added for owner/admin-only manual reprocessing
+  - manual reprocessing supports `rejected -> finalized` and `finalized -> finalized` only
+  - `finalized -> rejected` is denied
+  - manual finalized snapshot replacement overwrites the current snapshot in place and preserves historical before/after state through audit logs
+  - conversion unit, integration, contract, security, tenant-isolation, and end-to-end coverage updated for synchronous finalization and reprocessing
+- Phase 7.1 payout architecture reviewed and frozen before implementation:
+  - `PayoutBatch` owns many conversion-granular `Payout` rows
+  - one finalized conversion may belong to zero or exactly one persisted payout row
+  - database-level uniqueness on `payouts.conversion_id` is the safety boundary that prevents duplicate payment
+  - payout rows snapshot identity, financial, and finalized conversion facts at batch creation
+  - manual batch preview remains non-persistent
+  - manual batch creation snapshots data atomically
+  - batch lifecycle is frozen as `draft -> approved -> exported -> reconciled`
+  - draft batches may be deleted before approval; approved, exported, and reconciled batches are locked
+  - conversion reprocessing is blocked once a conversion belongs to any persisted payout row
+  - exported batches preserve financial truth; export is operational status only
+  - reconciliation is full-batch only in MVP
+- Phase 7 payout backend implemented:
+  - payout batch preview, creation, list, detail, and draft deletion routes implemented
+  - payout list and detail routes implemented
+  - payout approval, export, and reconciliation routes implemented
+  - payout rows now snapshot conversion identity, financial facts, and finalized conversion facts at batch creation
+  - duplicate-payment protection is enforced through one persisted payout row per finalized conversion
+  - manual conversion reprocessing is now blocked whenever a conversion already belongs to any persisted payout row
+  - payout lifecycle audit logs are now written for batch creation, draft deletion, approval, export, and reconciliation
+- Conversion-attribution architecture reviewed and frozen before Phase 5.2 and Phase 6 implementation:
+  - one click may legitimately produce many conversions
+  - conversions use immutable `cnv_*` public IDs
+  - duplicate protection is advertiser-event-driven and idempotency-based
+  - minimum lifecycle states are `received`, `finalized`, and `rejected`
+  - minimum timestamp model is `occurred_at`, `received_at`, and `finalized_at`
+  - supported conversion sources include advertiser postbacks plus legacy public `/gpixel` and `/goal` callback surfaces
+  - conversion source is not attribution authority
+  - `/gpixel` and `/goal` must remain thin public aliases over one shared conversion-ingestion service
+  - minimum click lookup order is `click_id`, then exact `sub1`-`sub5` matching in priority order
+  - dedupe uniqueness is advertiser-scoped and does not vary by public entry surface
+  - all public conversion-entry surfaces require `advertiser_id` as the minimum source-scoping input
+  - `event_type` resolves against offer event definitions and unknown event types are rejected
+  - structurally valid but unattributable conversions persist as `rejected`; invalid payloads do not persist
+  - duplicate-event outcomes do not create a second conversion row
+  - finalized conversions must snapshot identity, financial, visibility, and postback inputs and outcomes
+  - Phase 6.2 finalization is frozen as immediate synchronous finalization in the ingest path, not background finalization
+  - manual reprocessing is allowed only as an explicit internal operational action
+  - manual reprocessing may move `rejected -> finalized` or replace a `finalized` snapshot in place, but does not permit `finalized -> rejected`
+
+## Implementation State
+
+- Business modules outside auth, organizations, and membership RBAC remain unimplemented
+- Reporting, billing, and audit modules remain unimplemented
+- Payout backend is implemented for Phase 7 core batching and lifecycle flows
+- Authentication core is implemented for Phase 1.1
+- Organization onboarding is implemented for Phase 1.2
+- Membership administration and RBAC are implemented for Phase 2.1
+- Direct employee account provisioning and manager-team assignment are implemented for Phase 2.2
+- Publisher records are implemented for Phase 3.1
+- Advertiser records are implemented for Phase 3.2
+- Offer core is implemented for Phase 4.1
+- Offer assignments and publisher controls are implemented for Phase 4.2
+- Tracking infrastructure is implemented for Phase 5.1
+- Conversion intake is implemented for Phase 6.1
+- Conversion attribution finalization and manual reprocessing are implemented for Phase 6.2 backend scope
+- Initial database migrations exist for auth, organizations, memberships, and session-bound active organization selection
+- Initial database migrations exist for auth, organizations, memberships, session-bound active organization selection, membership manager assignment, and publishers
+- Initial database migrations exist for auth, organizations, memberships, session-bound active organization selection, membership manager assignment, publishers, and advertisers
+- Phase 0.1 bootstrap is complete
+- Phase 0.2 runtime skeleton is complete
+- Phase 0.3 delivery baseline is complete
+- Phase 1.1 auth core is complete
+- Phase 1.2 organization onboarding is complete
+- Phase 2.1 membership and RBAC is complete
+- Phase 2.2 work-account provisioning and team administration is complete
+- Phase 3.1 publisher records is complete
+- Phase 3.2 advertiser records is complete
+- Phase 4.1 offer core is complete
+- Phase 4.2 offer assignments and publisher controls is complete
+- Phase 5.1 tracking infrastructure is complete
+- Phase 5.2 click metadata privacy boundary is complete
+- Phase 6.1 conversion intake is complete
+- Phase 6.2 backend attribution and reprocessing is complete
+- Phase 7 payout backend is partially complete:
+  - payout calculation, preview, creation, reads, and lifecycle transitions implemented
+  - payout adjustment flow and payout UI remain unimplemented
+- Workspace build validation passed
+- Direct TypeScript validation passed for `web`, `api`, `worker`, and `contracts`
+- Lint validation passed
+- Integration validation passed for `GET /health` and `GET /ready`
+- Contract validation passed for `GET /health` and `GET /ready`
+- Unit validation passed for auth service behavior
+- Integration validation passed for auth signup, verification, login, logout, session, and password reset flows
+- Contract validation passed for implemented auth endpoints
+- Unit validation passed for organization service behavior
+- Integration validation passed for organization onboarding routes
+- Contract validation passed for implemented organization endpoints
+- End-to-end validation passed for authenticated organization onboarding
+- Unit validation passed for membership service behavior
+- Integration validation passed for membership and role-management routes
+- Contract validation passed for implemented membership endpoints
+- Security validation passed for RBAC restrictions
+- End-to-end validation passed for team management flows
+- Post-rollback validation passed after removing partial Phase 2.2 invite work:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - existing unit, integration, contract, security, and end-to-end suites
+- Post-implementation validation passed for Phase 2.2 direct work-account provisioning:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 3.1 validation passed for publisher records:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 3.2 validation passed for advertiser records:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 4.1 validation passed for offer core:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 4.2 validation passed for offer assignments and publisher controls:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 5.1 validation passed for tracking infrastructure:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 5.2 validation passed for click metadata privacy hardening:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+- Phase 6.1 validation passed for conversion intake:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, tenant-isolation, and end-to-end suites
+- Phase 6.2 validation passed for synchronous finalization and manual reprocessing:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, tenant-isolation, and end-to-end suites
+- Phase 7 payout validation passed for preview, creation, reads, draft deletion, approval, export, reconciliation, duplicate-payment safety, and reprocessing blocking:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, tenant-isolation, and end-to-end suites
+- Post-Phase-4 visibility simplification validation passed:
+  - direct TypeScript validation
+  - lint validation
+  - workspace build validation
+  - unit, integration, contract, security, and end-to-end suites
+
+## Approved MVP Scope
+
+- Agency SaaS only
+- Core concepts:
+  - Organization
+  - User
+  - Membership
+  - Session
+  - AuthChallengeToken
+  - PublisherRecord
+  - AdvertiserRecord
+  - Offer
+  - OfferAssignment
+  - Click
+  - Conversion
+  - Payout
+  - PayoutBatch
+  - ReportAggregate
+  - Subscription
+  - Entitlement
+  - AuditLog
+
+## Out Of Scope
+
+- Publisher Organizations
+- Advertiser Organizations
+- Publisher Portals
+- Advertiser Portals
+- Business Profiles
+- Claim or verification systems
+- Relationship layer
+- Cross-tenant identity resolution
+
+## Approved Architecture Summary
+
+- `Organization` is the root tenant
+- All business data is tenant scoped
+- `Next.js` is the frontend presentation layer only
+- `Node.js` API owns business logic, authorization, tracking, conversions, payouts, billing, and reporting logic
+- Background work runs in a separate worker process
+- `PostgreSQL` is the system database
+- `API_CONTRACT.md` is the source of truth for frontend/backend communication
+
+## Completed Planning Phases
+
+- Phase 0.5: Domain Modeling and Database Design Freeze
+- Phase 0.6: API Contract Design Freeze
+- Phase 0.7: Project Bootstrap Specification Freeze
+
+## Active Phase
+
+- Phase 5.1 complete
+- Phase 5.2 click metadata privacy boundary complete
+- Phase 6.1 conversion intake complete
+- Phase 6.2 backend complete with remaining UI and golden-data follow-up tasks still open
+- Phase 7 payout backend implemented through batch lifecycle operations
+- Waiting for review before remaining Phase 7 work
+
+## Known Constraints
+
+- Keep MVP simple
+- No future-phase abstractions without approval
+- Never trust organization identifiers from the frontend
+- Use immutable public identifiers
+- Update state files as part of every completed task
+- `npm` is the workspace package manager for MVP bootstrap
+- `Next.js` remains presentation-only and is initialized only as a shell
+- Auth, organization onboarding, membership RBAC, offer, assignment, and tracking endpoints exist in the Node API, but later conversion, payout, reporting, billing, and audit endpoints remain unimplemented
+- `npm run build` works in the shell and is part of the bootstrap gate
+- `node scripts/verify-bootstrap.mjs` intentionally excludes the build step because nested build execution is blocked by the current Windows sandbox
+- `TODO.md` is now the full implementation backlog through Phase 12, not just the current active phase log
+- Auth tests use `pg-mem` with direct schema seeding and skip the migration runner because repeated `IF NOT EXISTS` migration bootstrap statements are unstable in the `pg-mem` adapter path
+- Tenant access remains derived only through `User` -> `Membership` -> `Organization`
+- `sessions.active_organization_id` is used only as a current-org selection pointer and never as a standalone access grant
+- Billing visibility and audit-log visibility baselines are fixed in RBAC decisions even though those modules are not implemented yet
+- Invite-based team onboarding has been withdrawn from MVP
+- `DELETE /memberships/{membership_id}` is excluded from MVP; membership access changes use deactivation
+- Direct employee work-account provisioning is implemented for Phase 2.2
+- Work-account first-login uses forced password setup before normal access
+- Manager assignment is organization-scoped, nullable, membership-based, and limited to one level
+- Direct provisioning returns a one-time password-setup token to the acting owner or admin and must be treated as sensitive operational output
+- Campaign-level visibility restrictions are withdrawn from MVP and deferred to a future V2 visibility model if later approved
+- Publisher duplicate blocking is exact normalized active-name matching within one organization
+- Advertiser duplicate blocking is exact normalized active-name matching within one organization
+- Offer-assignment conversion visibility and postback controls are deterministic assignment-level percentages and do not change internal financial truth
+- OfferAssignment uniqueness is frozen as one non-archived `Offer + Publisher` pair per organization, which also guarantees one active assignment per pair
+- Publisher-level postback control is frozen on `PublisherRecord` as `publisher_postback_percent` with default `100`
+- Default organization-owned publisher tier settings seed as `40`, `55`, `70`, and `80` for `tier_1` through `tier_4`
+- Offer lifecycle is frozen as `draft`, `active`, `paused`, `archived`
+- Offer-assignment lifecycle is frozen as `active`, `paused`, `archived`
+- Offer ownership is frozen as mandatory `Offer -> AdvertiserRecord`; orphan offers are not allowed
+- MVP offer payout architecture is event-based, not single-payout: offers define advertiser event payouts, publishers carry tier assignment, organizations configure tier percentages, and offer assignments can apply event-scoped custom overrides
+- Offer event definitions are explicit records with `event_code`, `event_name`, and `advertiser_payout`; custom events are explicit offer-defined records, not free-text conversion values
+- `tracking_slug` is frozen as informational only and must never be used as a tracking or attribution key
+- Offer and offer-assignment reads are organization-scoped for all five MVP roles; only write permissions remain role-restricted
+- OfferAssignment is the sole tracking authority for publisher traffic resolution; tracking must derive tenant, offer, and publisher context from the resolved assignment
+- Public click ingest is now wired to assignment-owned opaque tracking tokens and resolves traffic only through the assignment token boundary
+- OfferAssignment tracking tokens are assignment-owned opaque routing identities, globally unique, immutable for the life of the assignment, and separate from public record IDs
+- OfferAssignment now owns trusted `redirect_url` configuration for public traffic redirection
+- Public tracking accepts traffic only for active assignment, active offer, active publisher, and active advertiser state
+- Clicks persist immutable `clk_*` public IDs plus resolved business public IDs and attribution-ready request metadata
+- Internal click reads are limited to `owner`, `admin`, `manager`, and `analyst`
+- Phase 5.2 now enforces the approved long-term click metadata boundary:
+  - hashed IP only
+  - whitelist-based attribution parameter persistence only
+  - approved parameters limited to `sub1`-`sub5` and `utm_*`
+  - unknown query parameters are ignored rather than durably persisted
+- Conversion attribution is frozen to the chain:
+  - tracking token
+  - assignment
+  - click
+  - conversion
+- `click_id` may be used as a direct lookup key where applicable, but only inside the same attribution chain
+- One click may legitimately produce many conversions when advertiser event identity supports it
+- Conversion dedupe must be based on advertiser-scoped external event identity or equivalent idempotency key, not on one-click-one-conversion assumptions
+- Conversion public IDs use immutable opaque `cnv_*` identifiers
+- Minimum conversion lifecycle is `received`, `finalized`, `rejected`
+- Minimum conversion timestamp model is `occurred_at`, `received_at`, `finalized_at`
+- `received_at` is mandatory and server-owned; omitted `occurred_at` remains `null`
+- Phase 6.2 finalization is synchronous in the request path for MVP
+- Meridian MVP supports both advertiser-side postbacks and legacy public conversion callback entrypoints
+- `/gpixel` and `/goal` are approved for MVP as separate public inbound conversion surfaces over one shared conversion-ingestion service
+- Conversion source never overrides attribution authority, tenant authority, or payout authority
+- Minimum conversion click-lookup chain is exact `click_id`, then exact `sub1`-`sub5` matching in priority order
+- If `click_id` is supplied but not found, Meridian does not fall through to lower-priority subid lookup
+- Conversion dedupe uniqueness is advertiser-scoped:
+  - `advertiser_id + external_event_id`
+  - or fallback `advertiser_id + idempotency_key`
+- `source_surface` does not widen the dedupe scope
+- All public conversion-entry surfaces require `advertiser_id` as the MVP source-scoping input
+- `utm_*` fields are not attribution lookup keys in MVP
+- Valid but unattributable conversions persist as `rejected` with explicit rejection codes
+- Duplicate-event outcomes return explicit duplicate results without creating a second conversion row
+- Internal conversion reads should follow the existing click-read matrix: `owner`, `admin`, `manager`, `analyst` allowed; `viewer` denied
+- Publisher tier assignment is organization-scoped on `PublisherRecord`, and the same publisher may hold different tiers in different organizations
+- Publisher postback percentage is organization-scoped on `PublisherRecord` and editable only by `owner` or `admin`
+- Tier percentages are organization-owned configurable settings editable only by `owner` or `admin`
+- Offer-assignment custom overrides are event-scoped fixed payout amounts; percentage-based overrides are excluded from MVP
+- Finalized conversions must snapshot payout inputs and outputs so later tier, advertiser payout, or override changes are never retroactive
+- Finalized conversions must snapshot:
+  - `advertiser_payout`
+  - `publisher_payout`
+  - `publisher_payout_source`
+  - `publisher_tier`
+  - `publisher_tier_percent`
+  - nullable `assignment_override_amount`
+- Finalized conversions must also snapshot:
+  - `external_event_id`
+  - `idempotency_key`
+  - `source_surface`
+- Finalized conversions must also snapshot publisher conversion-visibility and postback outcomes because assignment percentage changes are not retroactive
+- Effective postback percent is resolved as `MIN(publisher_postback_percent, assignment_postback_percent)` and finalized conversions must snapshot publisher, assignment, effective percent, and eligibility outcome
+- Payout-affecting configuration changes and manual payout-affecting reprocessing require audit logging
+- Hidden conversions and suppressed postbacks do not alter internal financial truth
+- Manual conversion reprocessing is one-record-at-a-time only in MVP and requires audit logging
+- Manual `finalized -> finalized` reprocessing overwrites the current snapshot in place; historical before/after values are preserved through audit logs rather than a separate snapshot-version table
+- Phase 7.1 payout architecture is frozen as:
+  - zero or one payout row per finalized conversion
+  - no payout-row aggregation
+  - no payout-row overwrite after approval
+  - no non-finalized or rejected conversions in payout batches
+  - no partial reconciliation, reversals, or negative payouts in MVP
+- Draft payout batches may be deleted before approval; later batch states preserve history permanently
+- Once a conversion belongs to a persisted payout row, conversion reprocessing is blocked and later payout adjustment flows must handle corrections
+- Payout backend currently implements:
+  - preview and creation as manual-only owner/admin operations
+  - payout reads for `owner`, `admin`, `manager`, and `analyst`
+  - draft deletion only
+  - approval, export, and full-batch reconciliation only
+- Payout management UI and payout adjustment flows remain deferred
+- Public business entities use entity-prefixed opaque immutable IDs at the API boundary; tracking tokens remain a separate routing-identity class
