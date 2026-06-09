@@ -343,6 +343,7 @@
 - Phase 6.2 backend complete with remaining UI and golden-data follow-up tasks still open
 - Phase 7 payout backend implemented through batch lifecycle operations
 - Deployment settings were added for Netlify frontend hosting and Railway API hosting
+- The API now falls back to Railway's injected `PORT` so production health checks can bind correctly
 - Waiting for review before remaining Phase 7 work
 
 ## Known Constraints

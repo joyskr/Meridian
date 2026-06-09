@@ -7,3 +7,6 @@ startCommand = "npm run start --workspace @meridian/api"
 healthcheckPath = "/ready"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
+
+[variables]
+API_PORT = "$PORT"

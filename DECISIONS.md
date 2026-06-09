@@ -1880,3 +1880,13 @@
 - Reason:
   - this keeps frontend and backend deployment responsibilities separated
   - it makes the production origin boundary explicit without introducing tenant-by-domain behavior
+
+## D-072: Railway PORT Binding
+
+- Status: Approved
+- The API must bind to Railway's injected `PORT` when it is present
+- `API_PORT` remains the local-development override
+- Railway deployments must not rely on a hard-coded API listen port
+- Reason:
+  - Railway health checks route traffic to the platform-assigned port
+  - using `PORT` fallback avoids a production-only boot failure
