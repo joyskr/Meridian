@@ -104,6 +104,10 @@
 - Internal database identifiers must never be exposed through API or public tracking surfaces
 - Tracking tokens are assignment-owned routing identities and are not interchangeable with public record identifiers
 - Public endpoints are limited to authentication challenges, click ingest, and conversion ingest
+- Browser requests are allowed only from configured origins; the production allowlist may include:
+  - `https://meridian.rovminds.com`
+  - `https://track.meridian.rovminds.com`
+- Hostnames are deployment entrypoints only and do not change tenant authorization rules
 - All write endpoints require validation, authorization, and tenant ownership checks
 - Error shape, pagination, sorting, and filtering must stay consistent across modules
 - Public tracking redirects use assignment-owned trusted redirect configuration only

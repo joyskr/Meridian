@@ -5,7 +5,7 @@ import path from 'node:path';
 import { createRuntime } from '../../apps/api/dist/app-runtime.js';
 import { createApp } from '../../apps/api/dist/platform/http/create-app.js';
 
-export async function createAuthTestContext() {
+export async function createAuthTestContext(configOverrides = {}) {
   const database = newDb({
     autoCreateForeignKeyIndices: true
   });
@@ -25,7 +25,8 @@ export async function createAuthTestContext() {
     skipMigrations: true,
     configOverrides: {
       NODE_ENV: 'test',
-      SESSION_SECRET: 'test-session-secret-1234'
+      SESSION_SECRET: 'test-session-secret-1234',
+      ...configOverrides
     }
   });
 

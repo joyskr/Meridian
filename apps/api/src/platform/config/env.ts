@@ -3,6 +3,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   API_PORT: z.coerce.number().int().positive().default(3001),
   WEB_ORIGIN: z.string().min(1).default('http://localhost:3000'),
+  CORS_ALLOWED_ORIGINS: z.string().optional(),
   DATABASE_URL: z.string().min(1).default('postgresql://user:password@localhost:5432/meridian'),
   SESSION_SECRET: z.string().min(16).default('replace-in-runtime'),
   SESSION_COOKIE_NAME: z.string().min(1).default('meridian_session'),
@@ -15,6 +16,7 @@ const envSchema = z.object({
 export type RuntimeConfig = {
   apiPort: number;
   webOrigin: string;
+  corsAllowedOrigins: string[];
   databaseUrl: string;
   sessionSecret: string;
   sessionCookieName: string;
@@ -29,10 +31,12 @@ export function readRuntimeConfig(overrides: Partial<Record<keyof z.infer<typeof
     ...process.env,
     ...overrides
   });
+  const corsAllowedOrigins = parseOriginList(parsed.CORS_ALLOWED_ORIGINS ?? parsed.WEB_ORIGIN);
 
   return {
     apiPort: parsed.API_PORT,
     webOrigin: parsed.WEB_ORIGIN,
+    corsAllowedOrigins,
     databaseUrl: parsed.DATABASE_URL,
     sessionSecret: parsed.SESSION_SECRET,
     sessionCookieName: parsed.SESSION_COOKIE_NAME,
@@ -41,4 +45,8 @@ export function readRuntimeConfig(overrides: Partial<Record<keyof z.infer<typeof
     passwordResetTtlMinutes: parsed.PASSWORD_RESET_TTL_MINUTES,
     nodeEnv: parsed.NODE_ENV
   } satisfies RuntimeConfig;
+}
+
+function parseOriginList(value: string) {
+  return [...new Set(value.split(',').map((origin) => origin.trim()).filter(Boolean))];
 }

@@ -8,7 +8,7 @@ export function createCorsMiddleware(config: RuntimeConfig) {
   return function corsMiddleware(request: Request, response: Response, next: NextFunction) {
     const origin = request.header('origin');
 
-    if (origin === config.webOrigin) {
+    if (origin && config.corsAllowedOrigins.includes(origin)) {
       response.setHeader('Access-Control-Allow-Origin', origin);
       response.setHeader('Vary', 'Origin');
       response.setHeader('Access-Control-Allow-Credentials', 'true');

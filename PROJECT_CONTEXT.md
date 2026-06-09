@@ -342,6 +342,7 @@
 - Phase 6.1 conversion intake complete
 - Phase 6.2 backend complete with remaining UI and golden-data follow-up tasks still open
 - Phase 7 payout backend implemented through batch lifecycle operations
+- Deployment settings were added for Netlify frontend hosting and Railway API hosting
 - Waiting for review before remaining Phase 7 work
 
 ## Known Constraints
@@ -357,6 +358,8 @@
 - `npm run build` works in the shell and is part of the bootstrap gate
 - `node scripts/verify-bootstrap.mjs` intentionally excludes the build step because nested build execution is blocked by the current Windows sandbox
 - `TODO.md` is now the full implementation backlog through Phase 12, not just the current active phase log
+- Production browser origins are allowlisted by configuration and currently include `meridian.rovminds.com` and `track.meridian.rovminds.com`
+- `meridian.rovminds.com` and `track.meridian.rovminds.com` are deployment entrypoints only and do not change tenant authorization rules
 - Auth tests use `pg-mem` with direct schema seeding and skip the migration runner because repeated `IF NOT EXISTS` migration bootstrap statements are unstable in the `pg-mem` adapter path
 - Tenant access remains derived only through `User` -> `Membership` -> `Organization`
 - `sessions.active_organization_id` is used only as a current-org selection pointer and never as a standalone access grant

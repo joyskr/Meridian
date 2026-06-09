@@ -277,6 +277,8 @@
 - [ ] Finalize deployment and rollback procedures
 - [ ] Finalize backup and restore verification steps
 - [ ] Finalize monitoring and alerting expectations
+- [x] Configure Netlify frontend and Railway API deployment settings
+- [x] Configure production CORS allowlist for `meridian.rovminds.com` and `track.meridian.rovminds.com`
 - [ ] Run end-to-end bootstrap and staging verification checklist
 
 ## State File Discipline

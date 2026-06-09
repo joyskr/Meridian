@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm run build --workspace @meridian/api && npm run build --workspace @meridian/contracts"
+
+[deploy]
+startCommand = "npm run start --workspace @meridian/api"
+healthcheckPath = "/ready"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"

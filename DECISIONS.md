@@ -1863,3 +1863,20 @@
   - audit logging for batch creation, draft deletion, approval, export, and reconciliation
 - Reason:
   - preserving approved and later batch rows is the simplest architecture that keeps payment history auditable and avoids silent financial rewrites
+
+## D-071: Netlify and Railway Deployment Domain Split
+
+- Status: Approved
+- Meridian production deployment uses a common-domain split:
+  - `meridian.rovminds.com` hosts the Next.js frontend on Netlify
+  - `track.meridian.rovminds.com` hosts the Node API and public tracking surfaces on Railway
+- API CORS is config-driven and may allow both browser origins:
+  - `https://meridian.rovminds.com`
+  - `https://track.meridian.rovminds.com`
+- Local development remains allowed through `http://localhost:3000`
+- Hostnames are deployment entrypoints only
+- They do not grant tenant access and do not change the tenant model
+- Tenant isolation remains derived only through authenticated session + active organization membership
+- Reason:
+  - this keeps frontend and backend deployment responsibilities separated
+  - it makes the production origin boundary explicit without introducing tenant-by-domain behavior

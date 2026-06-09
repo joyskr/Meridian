@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build --workspace @meridian/web"
+  publish = "apps/web/.next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+  NEXT_PUBLIC_API_BASE_URL = "https://track.meridian.rovminds.com"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
